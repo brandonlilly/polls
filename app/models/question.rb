@@ -23,4 +23,18 @@ class Question < ActiveRecord::Base
              class_name: :Poll
 
   has_many :responses, through: :answer_choices, source: :responses
+
+  def results
+    response_counts = {}
+    choices = answer_choices
+      .select('answer_choices.*, COALESCE(COUNT(responses.id), 0) AS response_count')
+      .joins('LEFT OUTER JOIN responses ON responses.answer_choice_id = answer_choices.id')
+      .group('answer_choices.id')
+
+    choices.each do |choice|
+      response_counts[choice.text] = choice.response_count
+    end
+    response_counts
+  end
+
 end

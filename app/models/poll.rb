@@ -13,9 +13,9 @@ class Poll < ActiveRecord::Base
   validates :title, :author_id, presence: true
 
   has_many :questions,
-           foreign_key: :poll_id,
-           primary_key: :id,
-           class_name: :Question
+             foreign_key: :poll_id,
+             primary_key: :id,
+             class_name: :Question
 
   belongs_to :author,
              foreign_key: :author_id,

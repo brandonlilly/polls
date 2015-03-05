@@ -44,7 +44,7 @@ class Response < ActiveRecord::Base
   end
 
   def respondent_can_not_respond_to_own_poll
-    if answer_choice.question.poll.exists?(author_id: user_id)
+    if answer_choice.question.poll.author_id == user_id
       errors[:respondent] << "can't respond to own poll"
     end
   end

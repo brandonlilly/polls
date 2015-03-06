@@ -27,24 +27,30 @@ class Response < ActiveRecord::Base
   has_one :question, through: :answer_choice, source: :question
 
   def sibling_responses
-    responses = question.responses
-    if id.nil?
-      responses
-    else
-      responses.where('responses.id != ?', id)
-    end
+    responses = Response
+      .select('siblings.*')
+      .joins(:question)
+      .where('responses.id = ?', id)
+      .joins('JOIN answer_choices AS acs ON acs.question_id = questions.id')
+      .joins('JOIN responses AS siblings ON siblings.answer_choice_id = acs.id')
+
+    (id.nil?) ? responses : responses.where('siblings.id != ?', id)
   end
 
   private
 
   def respondent_has_not_already_answered_question
     if sibling_responses.exists?(user_id: user_id)
-      errors[:respondent] << "can't respond to poll multiple times"
+      errors[:respondent] << "can't respond to question multiple times"
     end
   end
 
   def respondent_can_not_respond_to_own_poll
-    if answer_choice.question.poll.author_id == user_id
+    poll = Poll
+      .joins(questions: :answer_choices)
+      .find_by('answer_choices.id = ?', answer_choice_id)
+
+    if !poll.nil? && poll.author_id == user_id
       errors[:respondent] << "can't respond to own poll"
     end
   end

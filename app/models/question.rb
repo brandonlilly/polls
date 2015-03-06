@@ -15,12 +15,13 @@ class Question < ActiveRecord::Base
   has_many :answer_choices,
            foreign_key: :question_id,
            primary_key: :id,
-           class_name: :AnswerChoice
+           class_name:  :AnswerChoice,
+           dependent:   :destroy
 
   belongs_to :poll,
              foreign_key: :poll_id,
              primary_key: :id,
-             class_name: :Poll
+             class_name:  :Poll
 
   has_many :responses, through: :answer_choices, source: :responses
 
@@ -36,5 +37,4 @@ class Question < ActiveRecord::Base
     end
     response_counts
   end
-
 end
